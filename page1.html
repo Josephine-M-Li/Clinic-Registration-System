@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>診所掛號系統</title>
+        <style>
+            :root {
+                --primary: #25a6ebf6;
+                --primary-dark: #1d4ed8;
+                --gray-50: #f9fafb;
+                --gray-100: #f3f4f6;
+                --gray-200: #e5e7eb;
+                --gray-300: #d1d5db;
+                --gray-600: #4b5563;
+                --gray-700: #374151;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: system-ui, -apple-system, sans-serif;
+                background-color: var(--gray-50);
+                color: var(--gray-700);
+                line-height: 1.5;
+            }
+
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 2rem 1rem;
+            }
+
+            .title {
+                text-align: center;
+                font-size: 2rem;
+                font-weight: bold;
+                margin-bottom: 2rem;
+            }
+
+            /* Progress Steps */
+            .steps {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 2rem;
+                position: relative;
+            }
+
+            .steps::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: var(--gray-200);
+                z-index: 1;
+            }
+
+            .step {
+                position: relative;
+                z-index: 2;
+                background: white;
+                width: 2rem;
+                height: 2rem;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 2px solid var(--gray-300);
+            }
+
+            .step.active {
+                background: var(--primary);
+                border-color: var(--primary);
+                color: white;
+            }
+
+            .step.completed {
+                background: var(--primary);
+                border-color: var(--primary);
+                color: white;
+            }
+
+            /* Card */
+            .card {
+                background: white;
+                border-radius: 0.5rem;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                padding: 1.5rem;
+            }
+
+            .card-title {
+                font-size: 1.5rem;
+                font-weight: bold;
+                margin-bottom: 0.5rem;
+            }
+
+            .card-description {
+                color: var(--gray-600);
+                margin-bottom: 1.5rem;
+            }
+
+            /* Form */
+            .form-group {
+                margin-bottom: 1rem;
+            }
+
+            .form-label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: 500;
+            }
+
+            .form-input {
+                width: 100%;
+                padding: 0.5rem;
+                border: 1px solid var(--gray-300);
+                border-radius: 0.25rem;
+                font-size: 1rem;
+            }
+
+            .form-input:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+            }
+
+            .radio-group {
+                display: flex;
+                gap: 1rem;
+            }
+
+            /* Grid */
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+
+            /* 時段 */
+            .time-slots {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 0.5rem;
+            }
+
+            .time-slot {
+                padding: 0.5rem;
+                border: 1px solid var(--gray-300);
+                border-radius: 0.25rem;
+                text-align: center;
+                cursor: pointer;
+            }
+
+            .time-slot.selected {
+                background: var(--primary);
+                color: white;
+                border-color: var(--primary);
+            }
+
+            /* 按鈕 */
+            .button-group {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 1.5rem;
+            }
+
+            .button {
+                padding: 0.5rem 1rem;
+                border-radius: 0.25rem;
+                font-size: 1rem;
+                cursor: pointer;
+                border: none;
+            }
+
+            .button-primary {
+                background: var(--primary);
+                color: white;
+            }
+
+            .button-primary:hover {
+                background: var(--primary-dark);
+            }
+
+            .button-outline {
+                background: white;
+                border: 1px solid var(--gray-300);
+            }
+
+            .button-outline:hover {
+                background: var(--gray-100);
+            }
+
+            /* 日曆 */
+            .calendar {
+                border: 1px solid var(--gray-300);
+                border-radius: 0.25rem;
+                padding: 1rem;
+            }
+
+            .calendar-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1rem;
+            }
+
+            .calendar-grid {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                gap: 0.5rem;
+                text-align: center;
+            }
+
+            .calendar-day {
+                padding: 0.5rem;
+                cursor: pointer;
+                border-radius: 0.25rem;
+            }
+
+            .calendar-day:hover {
+                background: var(--gray-100);
+            }
+
+            .calendar-day.selected {
+                background: var(--primary);
+                color: white;
+            }
+
+            /* Responsive */
+            @media (max-width: 640px) {
+                .container {
+                    padding: 1rem;
+                }
+
+                .grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            /* Hide/Show Steps */
+            .step-content {
+                display: none;
+            }
+
+            .step-content.active {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <a href="./page2.html">第2頁</a><br>
+        <a href="./page2.html">第3頁</a>
+        <div class="container">
+            <h1 class="title">診所掛號系統</h1>
+
+            <div class="steps">
+                <div class="step active" data-step="1">1</div>
+                <div class="step" data-step="2">2</div>
+                <div class="step" data-step="3">3</div>
+                <div class="step" data-step="4">4</div>
+            </div>
+
+            <div class="card">
+                <form id="registrationForm">
+                    <!-- Step 1 -->
+                    <div class="step-content active" data-step="1">
+                        <h2 class="card-title">基本資料</h2>
+                        <p class="card-description">請填寫您的個人資料</p>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="name">姓名</label>
+                            <input type="text" id="name" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="id">身分證字號</label>
+                            <input type="text" id="id" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="phone">聯絡電話</label>
+                            <input type="tel" id="phone" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">性別</label>
+                            <div class="radio-group">
+                                <label>
+                                    <input type="radio" name="gender" value="male" required> 男
+                                </label>
+                                <label>
+                                    <input type="radio" name="gender" value="female"> 女
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="step-content" data-step="2">
+                        <h2 class="card-title">選擇科別與醫師</h2>
+                        <p class="card-description">請選擇欲掛號的科別與醫師</p>
+
+                        <div class="form-group">
+                            <label class="form-label" for="department">科別</label>
+                            <select id="department" class="form-input" required>
+                                <option value="">請選擇科別</option>
+                                <option value="internal">內科</option>
+                                <option value="surgery">外科</option>
+                                <option value="pediatrics">小兒科</option>
+                                <option value="dental">牙科</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="doctor">醫師</label>
+                            <select id="doctor" class="form-input" required disabled>
+                                <option value="">請先選擇科別</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="step-content" data-step="3">
+                        <h2 class="card-title">選擇看診時間</h2>
+                        <p class="card-description">請選擇您方便的看診時間</p>
+
+                        <div class="form-group">
+                            <label class="form-label">日期</label>
+                            <div class="calendar">
+                                <div class="calendar-header">
+                                    <button type="button" id="prevMonth" class="button button-outline">&lt;</button>
+                                    <span id="currentMonth"></span>
+                                    <button type="button" id="nextMonth" class="button button-outline">&gt;</button>
+                                </div>
+                                <div class="calendar-grid" id="calendarDays"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">時段</label>
+                            <div class="time-slots" id="timeSlots"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="step-content" data-step="4">
+                        <h2 class="card-title">確認預約資訊</h2>
+                        <p class="card-description">請確認以下預約資訊是否正確</p>
+
+                        <div class="grid">
+                            <div class="form-group">
+                                <label class="form-label">姓名</label>
+                                <p id="confirmName"></p>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">身分證字號</label>
+                                <p id="confirmId"></p>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">聯絡電話</label>
+                                <p id="confirmPhone"></p>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">性別</label>
+                                <p id="confirmGender"></p>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">科別</label>
+                                <p id="confirmDepartment"></p>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">醫師</label>
+                                <p id="confirmDoctor"></p>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">日期</label>
+                                <p id="confirmDate"></p>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">時段</label>
+                                <p id="confirmTime"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" id="prevButton" class="button button-outline" style="display: none;">上一步</button>
+                        <button type="button" id="nextButton" class="button button-primary">下一步</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            // Data
+            const doctors = {
+                internal: ["王大明醫師", "李小華醫師"],
+                surgery: ["張三醫師", "林四醫師"],
+                pediatrics: ["陳五醫師", "黃六醫師"],
+                dental: ["吳七醫師", "周八醫師"]
+            };
+
+            const timeSlots = [
+                "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+                "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"
+            ];
+
+            // State
+            let currentStep = 1;
+            let selectedDate = null;
+            let selectedTime = null;
+            let currentMonth = new Date();
+
+            // Elements
+            const form = document.getElementById('registrationForm');
+            const prevButton = document.getElementById('prevButton');
+            const nextButton = document.getElementById('nextButton');
+            const departmentSelect = document.getElementById('department');
+            const doctorSelect = document.getElementById('doctor');
+            const calendarDays = document.getElementById('calendarDays');
+            const currentMonthElement = document.getElementById('currentMonth');
+            const timeSlotsContainer = document.getElementById('timeSlots');
+
+            // Event Listeners
+            prevButton.addEventListener('click', () => navigateStep(-1));
+            nextButton.addEventListener('click', () => navigateStep(1));
+            departmentSelect.addEventListener('change', updateDoctors);
+            document.getElementById('prevMonth').addEventListener('click', () => navigateMonth(-1));
+            document.getElementById('nextMonth').addEventListener('click', () => navigateMonth(1));
+
+            // Functions
+            function navigateStep(direction) {
+                const newStep = currentStep + direction;
+                
+                if (newStep < 1 || newStep > 4) return;
+                
+                if (direction > 0 && !validateStep(currentStep)) return;
+
+                currentStep = newStep;
+                updateUI();
+
+                if (currentStep === 4) {
+                    updateConfirmation();
+                }
+            }
+
+            function validateStep(step) {
+                switch(step) {
+                    case 1:
+                        return document.getElementById('name').value &&
+                            document.getElementById('id').value &&
+                            document.getElementById('phone').value &&
+                            document.querySelector('input[name="gender"]:checked');
+                    case 2:
+                        return departmentSelect.value && doctorSelect.value;
+                    case 3:
+                        return selectedDate && selectedTime;
+                    default:
+                        return true;
+                }
+            }
+
+            function updateUI() {
+                // Update steps
+                document.querySelectorAll('.step').forEach(step => {
+                    const stepNum = parseInt(step.dataset.step);
+                    step.classList.remove('active', 'completed');
+                    if (stepNum === currentStep) {
+                        step.classList.add('active');
+                    } else if (stepNum < currentStep) {
+                        step.classList.add('completed');
+                    }
+                });
+
+                // Update content visibility
+                document.querySelectorAll('.step-content').forEach(content => {
+                    content.classList.remove('active');
+                    if (parseInt(content.dataset.step) === currentStep) {
+                        content.classList.add('active');
+                    }
+                });
+
+                // Update buttons
+                prevButton.style.display = currentStep > 1 ? 'block' : 'none';
+                nextButton.textContent = currentStep === 4 ? '確認預約' : '下一步';
+            }
+
+            function updateDoctors() {
+                const department = departmentSelect.value;
+                doctorSelect.innerHTML = '<option value="">請選擇醫師</option>';
+                doctorSelect.disabled = !department;
+
+                if (department) {
+                    doctors[department].forEach(doctor => {
+                        const option = document.createElement('option');
+                        option.value = doctor;
+                        option.textContent = doctor;
+                        doctorSelect.appendChild(option);
+                    });
+                }
+            }
+
+            function renderCalendar() {
+                const year = currentMonth.getFullYear();
+                const month = currentMonth.getMonth();
+                
+                currentMonthElement.textContent = `${year}年${month + 1}月`;
+
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                
+                calendarDays.innerHTML = '';
+
+                // Add 日曆表頭
+                ['日', '一', '二', '三', '四', '五', '六'].forEach(day => {
+                    const dayElement = document.createElement('div');
+                    dayElement.textContent = day;
+                    dayElement.className = 'calendar-day';
+                    calendarDays.appendChild(dayElement);
+                });
+
+                // Add 空格在每月的第一天前
+                for (let i = 0; i < firstDay.getDay(); i++) {
+                    const emptyDay = document.createElement('div');
+                    calendarDays.appendChild(emptyDay);
+                }
+
+                // Add 天
+                for (let day = 1; day <= lastDay.getDate(); day++) {
+                    const dayElement = document.createElement('div');
+                    dayElement.textContent = day;
+                    dayElement.className = 'calendar-day';
+                    
+                    const date = new Date(year, month, day);
+                    if (selectedDate && date.toDateString() === selectedDate.toDateString()) {
+                        dayElement.classList.add('selected');
+                    }
+
+                    dayElement.addEventListener('click', () => {
+                        selectedDate = date;
+                        renderCalendar();
+                    });
+
+                    calendarDays.appendChild(dayElement);
+                }
+            }
+
+            function navigateMonth(direction) {
+                currentMonth.setMonth(currentMonth.getMonth() + direction);
+                renderCalendar();
+            }
+
+            function renderTimeSlots() {
+                timeSlotsContainer.innerHTML = '';
+                timeSlots.forEach(time => {
+                    const slot = document.createElement('button');
+                    slot.type = 'button';
+                    slot.textContent = time;
+                    slot.className = 'time-slot';
+                    if (time === selectedTime) {
+                        slot.classList.add('selected');
+                    }
+                    slot.addEventListener('click', () => {
+                        selectedTime = time;
+                        renderTimeSlots();
+                    });
+                    timeSlotsContainer.appendChild(slot);
+                });
+            }
+
+            function updateConfirmation() {
+                document.getElementById('confirmName').textContent = document.getElementById('name').value;
+                document.getElementById('confirmId').textContent = document.getElementById('id').value;
+                document.getElementById('confirmPhone').textContent = document.getElementById('phone').value;
+                document.getElementById('confirmGender').textContent = 
+                    document.querySelector('input[name="gender"]:checked').value === 'male' ? '男' : '女';
+                document.getElementById('confirmDepartment').textContent = 
+                    departmentSelect.options[departmentSelect.selectedIndex].text;
+                document.getElementById('confirmDoctor').textContent = doctorSelect.value;
+                document.getElementById('confirmDate').textContent = selectedDate.toLocaleDateString();
+                document.getElementById('confirmTime').textContent = selectedTime;
+            }
+
+            // 初始化
+            renderCalendar();
+            renderTimeSlots();
+            updateUI();
+        </script>
+    </body>
+</html>
