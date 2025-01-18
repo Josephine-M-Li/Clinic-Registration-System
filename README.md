@@ -1,5 +1,8 @@
 # Clinic-Registration-System
 診所掛號系統
+![1737241119942](https://github.com/user-attachments/assets/d70b029c-c2d6-4698-af48-6b270c9e5521)
+
+
 
 ## 介紹
 本專案為一個基於 HTML、CSS 和 JavaScript 的診所掛號系統，設計簡潔且具互動性的使用者介面，允許使用者完成以下流程：
