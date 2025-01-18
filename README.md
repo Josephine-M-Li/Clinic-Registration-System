@@ -1,5 +1,5 @@
 # Clinic-Registration-System
-診所掛號系統
+
 ![1737241119942](https://github.com/user-attachments/assets/d70b029c-c2d6-4698-af48-6b270c9e5521)
 
 
